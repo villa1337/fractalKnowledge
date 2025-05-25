@@ -29,7 +29,7 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
 import time
@@ -43,7 +43,7 @@ def query_openrouter(prompt: str, model="mistralai/mistral-7b-instruct:free") ->
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 600
+        "max_tokens": 450
     }
 
     time.sleep(1)  # Delay to reduce risk of rate limiting
@@ -83,27 +83,18 @@ async def get_concept(keyword: str):
 
     # Generate semantic tree using OpenRouter
     prompt = f"""
-You are a JSON knowledge tree generator.
+You are a JSON generator.
 
-Given a concept like "{keyword}", return a JSON tree like:
-{{
-  "title": "string",
-  "type": "entity" | "fact" | "category" | "quote" | "image",
-  "value": "short description (optional)",
-  "media": "optional image URL",
-  "children": [
-    {{
-      "title": "string",
-      "type": "...",
-      "value": "...",
-      "media": "...",
-      "children": [ ... ]
-    }}
-  ]
-}}
+Given the concept "{keyword}", return a JSON tree with:
+- title (string)
+- type (entity, fact, category, quote, or image)
+- value (short string)
+- media (optional image URL)
+- children (array of similar objects)
 
-Limit to 2 levels of depth, max 5 child nodes per level.
-Return only raw JSON. No markdown. No explanation.
+Limit to 2 levels deep and max 5 children per node.
+
+Only output raw JSON.
 """
     import json
     import logging
