@@ -29,7 +29,7 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Function to query OpenRouter LLM
 def query_openrouter(prompt: str) -> dict:
@@ -42,7 +42,7 @@ def query_openrouter(prompt: str) -> dict:
         "messages": [
             {"role": "user", "content": prompt}
         ],
-        "max_tokens": 777
+        "max_tokens": 600
     }
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -72,33 +72,27 @@ async def get_concept(keyword: str):
 
     # Generate semantic tree using OpenRouter
     prompt = f"""
-You are an AI trained to return a **compact**, two-level, semantic knowledge tree in JSON format.
+You are a JSON knowledge tree generator.
 
-Given the concept: \"{keyword}\"
-
-Return a structured JSON object like this:
-
+Given a concept like "{keyword}", return a JSON tree like:
 {{
   "title": "string",
   "type": "entity" | "fact" | "category" | "quote" | "image",
-  "value": "brief description (optional)",
+  "value": "short description (optional)",
   "media": "optional image URL",
   "children": [
     {{
       "title": "string",
-      "type": "entity" | "fact" | "category" | "quote" | "image",
-      "value": "brief description (optional)",
-      "media": "optional image URL",
-      "children": [ ... ] // up to 3 items max
-    }},
-    ...
-  ] // up to 5 items max
+      "type": "...",
+      "value": "...",
+      "media": "...",
+      "children": [ ... ]
+    }}
+  ]
 }}
 
-- Always keep responses compact and structured.
-- Limit to **2 levels of depth**, max 5 nodes at each level.
-- Keep value text short. Avoid long lists or verbose history.
-- Return only JSON, no explanation or wrapping markdown.
+Limit to 2 levels of depth, max 5 child nodes per level.
+Return only raw JSON. No markdown. No explanation.
 """
     import json
     import logging
