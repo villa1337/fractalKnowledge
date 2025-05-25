@@ -61,6 +61,10 @@ def query_wikipedia(keyword: str) -> dict:
         return response.json()
     return {}
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 @app.get("/concept/{keyword}", response_model=Node)
 async def get_concept(keyword: str):
     # Query Wikipedia for factual data
