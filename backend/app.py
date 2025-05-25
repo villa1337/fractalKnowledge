@@ -29,7 +29,7 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Function to query OpenRouter LLM
 def query_openrouter(prompt: str) -> dict:
