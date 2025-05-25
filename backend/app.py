@@ -7,7 +7,7 @@ import requests
 app = FastAPI()
 import logging
 logging.basicConfig(level=logging.INFO)
-logging.info("🔥 FastAPI app is starting...")
+print("🔥 FastAPI app is starting...")
 
 app.add_middleware(
     CORSMiddleware,
@@ -100,7 +100,7 @@ Return a structured JSON object like this:
     import logging
     try:
         llm_raw = query_openrouter(prompt)
-        logging.info(f"✅ LLM raw response received")
+        print("✅ LLM raw response received")
 
         llm_content = llm_raw["choices"][0]["message"]["content"]
 
@@ -111,11 +111,11 @@ Return a structured JSON object like this:
             )
 
         tree = json.loads(llm_content)
-        logging.info("✅ Successfully parsed LLM JSON response")
+        print("✅ Successfully parsed LLM JSON response")
 
     except Exception as e:
-        logging.error(f"❌ Failed to parse LLM response: {e}")
-        logging.error(f"Raw LLM content: {llm_raw if 'llm_raw' in locals() else 'No response'}")
+        print(f"❌ Failed to parse LLM response: {e}")
+        print(f"Raw LLM content: {llm_raw if 'llm_raw' in locals() else 'No response'}")
         tree = {
             "title": keyword,
             "type": "error",
