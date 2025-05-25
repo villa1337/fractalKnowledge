@@ -134,3 +134,10 @@ Return a structured JSON object like this:
         tree["media"] = wiki_data["thumbnail"].get("source")
 
     return Node(**tree)
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.getenv("PORT", 8000))
+    print(f"🚀 Starting app on port {port}")
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
