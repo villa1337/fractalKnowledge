@@ -97,10 +97,11 @@ Return a structured JSON object like this:
 - Return only JSON, no explanation or wrapping markdown.
 """
     import json
-
-    llm_raw = query_openrouter(prompt)
-
+    import logging
     try:
+        llm_raw = query_openrouter(prompt)
+        logging.info(f"✅ LLM raw response received")
+
         llm_content = llm_raw["choices"][0]["message"]["content"]
 
         # Remove any Markdown code block formatting like ```json ... ```
@@ -110,8 +111,17 @@ Return a structured JSON object like this:
             )
 
         tree = json.loads(llm_content)
+        logging.info("✅ Successfully parsed LLM JSON response")
+
     except Exception as e:
-        raise ValueError(f"Failed to parse LLM response: {e}\nRaw content: {llm_raw}")
+        logging.error(f"❌ Failed to parse LLM response: {e}")
+        logging.error(f"Raw LLM content: {llm_raw if 'llm_raw' in locals() else 'No response'}")
+        tree = {
+            "title": keyword,
+            "type": "error",
+            "value": "An error occurred while generating the concept tree.",
+            "children": []
+        }
 
     # Fallback enrichment for root node from Wikipedia
     if not tree.get("value") and wiki_data.get("extract"):
