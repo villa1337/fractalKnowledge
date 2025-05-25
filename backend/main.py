@@ -5,6 +5,9 @@ from typing import List, Optional, Union
 import requests
 
 app = FastAPI()
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("🔥 FastAPI app is starting...")
 
 app.add_middleware(
     CORSMiddleware,
