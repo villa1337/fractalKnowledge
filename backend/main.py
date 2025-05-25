@@ -29,28 +29,39 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
-# Function to query OpenRouter LLM
-def query_openrouter(prompt: str) -> dict:
+# Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
+import time
+
+def query_openrouter(prompt: str, model="mistralai/mistral-7b-instruct:free") -> dict:
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "User-Agent": "fractal-knowledge-explorer/1.0"
     }
     body = {
-        "model": "mistralai/mistral-7b-instruct:free",
-        "messages": [
-            {"role": "user", "content": prompt}
-        ],
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
         "max_tokens": 600
     }
-    response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        json=body,
-        headers=headers
-    )
-    response.raise_for_status()
-    return response.json()
+
+    time.sleep(1)  # Delay to reduce risk of rate limiting
+
+    try:
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            json=body,
+            headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as http_err:
+        print(f"❌ HTTP error occurred: {http_err}")
+        if response.status_code == 429 and model != "openai/gpt-3.5-turbo:free":
+            print("🔁 Retrying with fallback model...")
+            return query_openrouter(prompt, model="openai/gpt-3.5-turbo:free")
+        raise
 
 # Function to query Wikipedia API
 def query_wikipedia(keyword: str) -> dict:
