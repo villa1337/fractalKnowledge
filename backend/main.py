@@ -29,7 +29,7 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
 import time
@@ -88,13 +88,13 @@ You are a JSON generator.
 Given the concept "{keyword}", return a JSON tree with:
 - title (string)
 - type (entity, fact, category, quote, or image)
-- value (short string)
+- value (short description)
 - media (optional image URL)
 - children (array of similar objects)
 
-Limit to 2 levels deep and max 5 children per node.
+Limit to 2 levels deep and no more than 5 children per level.
 
-Only output raw JSON.
+Only return raw JSON. No explanation, no markdown.
 """
     import json
     import logging
