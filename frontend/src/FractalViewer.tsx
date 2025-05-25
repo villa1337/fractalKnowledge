@@ -63,7 +63,7 @@ export const FractalViewer: React.FC = () => {
     }
 
     try {
-      const res = await fetch(`http://fractalknowledge-production.up.railway.app:8000/concept/${encodeURIComponent(keyword)}`);
+      const res = await fetch(`http://fractalknowledge-production.up.railway.app:8080/concept/${encodeURIComponent(keyword)}`);
       const data = await res.json();
       setConcept(data);
       setQuery(data.title); // Update query with the current concept's title
