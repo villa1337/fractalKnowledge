@@ -29,7 +29,7 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Function to query OpenRouter LLM
 def query_openrouter(prompt: str) -> dict:
@@ -42,7 +42,7 @@ def query_openrouter(prompt: str) -> dict:
         "messages": [
             {"role": "user", "content": prompt}
         ],
-        "max_tokens": 1500
+        "max_tokens": 777
     }
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -134,10 +134,3 @@ Return a structured JSON object like this:
         tree["media"] = wiki_data["thumbnail"].get("source")
 
     return Node(**tree)
-
-# if __name__ == "__main__":
-#     import uvicorn
-#     import os
-#     port = int(os.getenv("PORT", 8000))
-#     print(f"🚀 Starting app on port {port}")
-#     uvicorn.run("app:app", host="0.0.0.0", port=port)
