@@ -32,7 +32,7 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
 import time
@@ -46,7 +46,7 @@ def query_openrouter(prompt: str, model="google/gemma-3n-e4b-it:free") -> dict:
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 750
+        "max_tokens": 666
     }
 
     time.sleep(1)  # Delay to reduce risk of rate limiting
