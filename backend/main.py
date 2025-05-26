@@ -29,7 +29,7 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
 import time
