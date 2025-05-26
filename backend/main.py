@@ -11,7 +11,10 @@ print("🔥 FastAPI app is starting...")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For dev: allow all origins
+    allow_origins=[
+        "http://localhost:5173",
+        "https://fractal-knowledge.vercel.app"
+    ],  # Allow frontend dev and Vercel deployed origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

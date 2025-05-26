@@ -60,7 +60,16 @@ export const FractalViewer: React.FC = () => {
     }
 
     try {
-      const res = await fetch(`https://52b6-187-232-201-204.ngrok-free.app/concept/${encodeURIComponent(keyword)}`);
+      const username = 'admin';  // your chosen username from ngrok.yml auth
+      const password = '1234';   // your chosen password from ngrok.yml auth
+      const credentials = btoa(`${username}:${password}`);
+
+      const res = await fetch(`https://1efa-187-232-201-204.ngrok-free.app/concept/${encodeURIComponent(keyword)}`, {
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',  // if you expect JSON back
+        }
+      });
       const data = await res.json();
       setConcept(data);
     } catch (error) {
