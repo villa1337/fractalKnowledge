@@ -29,12 +29,12 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
 import time
 
-def query_openrouter(prompt: str, model="openai/gpt-3.5-turbo:free") -> dict:
+def query_openrouter(prompt: str, model="google/gemma-3n-e4b-it:free") -> dict:
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
@@ -43,7 +43,7 @@ def query_openrouter(prompt: str, model="openai/gpt-3.5-turbo:free") -> dict:
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 1500
+        "max_tokens": 750
     }
 
     time.sleep(1)  # Delay to reduce risk of rate limiting
@@ -85,22 +85,21 @@ async def get_concept(keyword: str):
     prompt = f"""
 You are a structured JSON knowledge generator.
 
-Given a concept (e.g., "car", "Nissan", or "freedom"), return a structured JSON tree that organizes related information in a meaningful, hierarchical way.
+Your task is to create a semantic tree about the concept: "{keyword}".
 
-Each node in the JSON should have:
-- title (string): the name of the concept
+Respond only with JSON using this structure:
+- title (string): must exactly match the concept "{keyword}"
 - type (string): one of "entity", "fact", "category", "quote", or "image"
-- value (string): short explanation or fact (optional for categories)
-- media (string, optional): image URL if relevant
-- children (array): up to 5 deeper child nodes (can be empty)
+- value (string): a short explanation
+- media (string, optional): image URL
+- children (array): up to 5 related sub-nodes, each of the same structure
 
-Your job is to intelligently cluster semantically rich sub-concepts and allow drilling down layer by layer.
-
-Return JSON only. Do not explain. Do not use markdown.
-Limit depth to 2 levels, 5 children per node max.
+Only return valid JSON. No explanations. No markdown.
+Depth: 1 level only. Max 5 children.
 """
     import json
     import logging
+    import re
     try:
         llm_raw = query_openrouter(prompt)
         print("✅ LLM raw response received")
@@ -113,8 +112,38 @@ Limit depth to 2 levels, 5 children per node max.
                 line for line in llm_content.strip().splitlines() if not line.strip().startswith("```")
             )
 
-        tree = json.loads(llm_content)
-        print("✅ Successfully parsed LLM JSON response")
+        # Strip example.com or fake URLs from the LLM JSON before parsing
+        llm_content = re.sub(r'"media"\s*:\s*"https?://[^"]*(example\.com)[^"]*"', '"media": null', llm_content)
+
+        try:
+            # Attempt to parse the JSON response
+            tree = json.loads(llm_content)
+            print("✅ Successfully parsed LLM JSON response")
+
+            # Enrich children nodes with Wikipedia images if no media is present
+            if "children" in tree and isinstance(tree["children"], list):
+                for child in tree["children"]:
+                    if not child.get("media"):
+                        wiki_child = query_wikipedia(child["title"])
+                        if wiki_child.get("thumbnail"):
+                            child["media"] = wiki_child["thumbnail"].get("source")
+
+        except json.JSONDecodeError as e:
+            print(f"❌ JSONDecodeError: {e}")
+            print("⚠️ Attempting to recover partial JSON...")
+            # Attempt to recover partial JSON
+            try:
+                partial_content = llm_content.rsplit(',', 1)[0] + ']}]}'
+                tree = json.loads(partial_content)
+                print("✅ Successfully recovered partial JSON response")
+            except Exception as recovery_error:
+                print(f"❌ Failed to recover JSON: {recovery_error}")
+                tree = {
+                    "title": keyword,
+                    "type": "error",
+                    "value": "An error occurred while generating the concept tree.",
+                    "children": []
+                }
 
     except Exception as e:
         print(f"❌ Failed to parse LLM response: {e}")

@@ -20,10 +20,7 @@ const renderNode = (node: Node, onExpand: (keyword: string) => void): JSX.Elemen
         {node.title}
       </h4>
       {node.value && (
-        <p
-          style={{ cursor: "pointer", color: "#555555" }} // Neutral color for values
-          onClick={() => node.value && onExpand(node.value)}
-        >
+        <p style={{ color: "#555555" }}>
           {node.value}
         </p>
       )}
@@ -35,7 +32,6 @@ const renderNode = (node: Node, onExpand: (keyword: string) => void): JSX.Elemen
             style={{ width: 100, cursor: "pointer" }}
             onClick={() => onExpand(node.title)}
           />
-          {node.value && <p style={{ fontSize: "0.9em", color: "gray" }}>{node.value}</p>}
         </div>
       )}
       {node.preview && (
@@ -58,6 +54,7 @@ export const FractalViewer: React.FC = () => {
 
   const fetchConcept = async (keyword: string) => {
     setLoading(true);
+    setQuery(keyword); // Ensure query is updated immediately
     if (concept) {
       setHistory((prev) => [...prev, concept]);
     }
@@ -66,7 +63,6 @@ export const FractalViewer: React.FC = () => {
       const res = await fetch(`http://localhost:8500/concept/${encodeURIComponent(keyword)}`);
       const data = await res.json();
       setConcept(data);
-      setQuery(data.title); // Update query with the current concept's title
     } catch (error) {
       console.error("Failed to fetch concept:", error);
     } finally {
