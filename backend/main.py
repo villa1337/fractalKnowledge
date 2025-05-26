@@ -29,12 +29,12 @@ class Node(BaseModel):
 Node.update_forward_refs()
 
 # Placeholder for OpenRouter API key
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
 import time
 
-def query_openrouter(prompt: str, model="mistralai/mistral-7b-instruct:free") -> dict:
+def query_openrouter(prompt: str, model="openai/gpt-3.5-turbo:free") -> dict:
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
@@ -43,7 +43,7 @@ def query_openrouter(prompt: str, model="mistralai/mistral-7b-instruct:free") ->
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 850
+        "max_tokens": 1500
     }
 
     time.sleep(1)  # Delay to reduce risk of rate limiting
