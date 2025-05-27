@@ -50,6 +50,7 @@ export const FractalViewer: React.FC = () => {
   const [concept, setConcept] = useState<Node | null>(null);
   const [query, setQuery] = useState(""); // Removed placeholder "nissan"
   const [history, setHistory] = useState<Node[]>([]);
+  const [forwardHistory, setForwardHistory] = useState<Node[]>([]); // Added forward history state
   const [loading, setLoading] = useState(false);
 
   const fetchConcept = async (keyword: string) => {
@@ -70,11 +71,35 @@ export const FractalViewer: React.FC = () => {
     }
   };
 
+  const goForward = () => {
+    setForwardHistory((prev) => {
+      const newForwardHistory = [...prev];
+      const next = newForwardHistory.pop();
+      if (next) {
+        setHistory((prevHistory) => [...prevHistory, concept!]);
+        setConcept(next);
+      }
+      return newForwardHistory;
+    });
+  };
+
+  const querySelectedText = () => {
+    const selectedText = window.getSelection()?.toString().trim();
+    if (selectedText) {
+      fetchConcept(selectedText);
+    } else {
+      alert("No text selected");
+    }
+  };
+
   const goBack = () => {
     setHistory((prev) => {
       const newHistory = [...prev];
       const previous = newHistory.pop();
-      if (previous) setConcept(previous);
+      if (previous) {
+        setForwardHistory((prevForward) => [...prevForward, concept!]);
+        setConcept(previous);
+      }
       return newHistory;
     });
   };
@@ -84,31 +109,135 @@ export const FractalViewer: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            fetchConcept(query);
-          }
-        }}
-        placeholder="Enter a concept..."
-        style={{ marginBottom: 10, padding: 5, marginRight: 10 }} // Added margin-right for spacing
-      />
-      <button onClick={() => fetchConcept(query)} style={{ marginRight: 10 }}>
-        Search
-      </button>
-      {history.length > 0 && (
-        <button onClick={goBack} style={{ marginRight: 10 }}>
-          Back
+    <div style={{ padding: 20, maxWidth: '100%', overflowX: 'hidden' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              fetchConcept(query);
+            }
+          }}
+          placeholder="Enter a concept..."
+          style={{
+            padding: 10,
+            borderRadius: 5,
+            border: '1px solid #ccc',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            width: 'calc(100% - 40px)', // Match the width of the buttons
+            maxWidth: 300,
+            boxSizing: 'border-box',
+          }}
+        />
+        <button
+          onClick={() => fetchConcept(query)}
+          disabled={loading} // Disable button when loading
+          style={{
+            padding: '10px',
+            borderRadius: 5,
+            backgroundColor: loading ? '#ccc' : '#98F3B6', // Change color when disabled
+            color: loading ? '#888' : '#435047',
+            border: 'none',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            width: 'calc(100% - 40px)',
+            maxWidth: 300,
+            boxSizing: 'border-box',
+          }}
+        >
+          Search
         </button>
-      )}
+        <button
+          onClick={querySelectedText}
+          style={{
+            padding: '10px',
+            borderRadius: 5,
+            backgroundColor: '#1E90FF',
+            color: '#fff',
+            border: 'none',
+            cursor: 'pointer',
+            width: 'calc(100% - 40px)',
+            maxWidth: 300,
+            boxSizing: 'border-box',
+          }}
+        >
+          Query Selected Text
+        </button>
+        <button
+          onClick={() => window.open(`https://duckduckgo.com/?q=${encodeURIComponent(query)}`, '_blank')}
+          style={{
+            padding: '10px',
+            borderRadius: 5,
+            backgroundColor: '#FFDD57', // Yellow color for distinction
+            color: '#000',
+            border: 'none',
+            cursor: 'pointer',
+            width: 'calc(100% - 40px)',
+            maxWidth: 300,
+            boxSizing: 'border-box',
+          }}
+        >
+          Search Online
+        </button>
+        {history.length > 0 && (
+          <button
+            onClick={goBack}
+            style={{
+              padding: '10px 20px',
+              borderRadius: 5,
+              backgroundColor: '#555',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Back
+          </button>
+        )}
+        {forwardHistory.length > 0 && (
+          <button
+            onClick={goForward}
+            style={{
+              padding: '10px 20px',
+              borderRadius: 5,
+              backgroundColor: '#555',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Forward
+          </button>
+        )}
+      </div>
       {loading ? (
-        <p>Loading...</p>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              border: '4px solid #ccc',
+              borderTop: '4px solid #1E90FF',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          ></div>
+        </div>
       ) : (
         <div>{concept && renderNode(concept, fetchConcept)}</div>
       )}
+      <style>
+        {`
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };
