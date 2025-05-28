@@ -12,15 +12,15 @@ type Node = {
 
 const renderNode = (node: Node, onExpand: (keyword: string) => void): JSX.Element => {
   return (
-    <div style={{ marginLeft: 20, marginTop: 10 }}>
+    <div style={{ margin: '10px auto', textAlign: 'center' }}> {/* Centered content */}
       <h4
-        style={{ cursor: "pointer", color: "#1E90FF" }} // Link color for titles
+        style={{ cursor: 'pointer', color: '#1E90FF' }} // Link color for titles
         onClick={() => onExpand(node.title)}
       >
         {node.title}
       </h4>
       {node.value && (
-        <p style={{ color: "#555555" }}>
+        <p style={{ color: '#555555' }}>
           {node.value}
         </p>
       )}
@@ -29,13 +29,13 @@ const renderNode = (node: Node, onExpand: (keyword: string) => void): JSX.Elemen
           <img
             src={node.media}
             alt={node.title}
-            style={{ width: 100, cursor: "pointer" }}
+            style={{ width: 100, cursor: 'pointer', display: 'block', margin: '0 auto' }} // Centered image
             onClick={() => onExpand(node.title)}
           />
         </div>
       )}
       {node.preview && (
-        <ul>
+        <ul style={{ listStyleType: 'none', padding: 0 }}> {/* Centered list */}
           {node.preview.map((item, i) => (
             <li key={i}>{item}</li>
           ))}
