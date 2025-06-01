@@ -1,4 +1,5 @@
 import React, { useEffect, useState, type JSX } from "react";
+import { locales } from './locales';
 
 type Node = {
   title: string;
@@ -46,22 +47,30 @@ const renderNode = (node: Node, onExpand: (keyword: string) => void): JSX.Elemen
   );
 };
 
-export const FractalViewer: React.FC = () => {
+export const FractalViewer: React.FC<{ language: 'en' | 'es' }> = ({ language }) => {
   const [concept, setConcept] = useState<Node | null>(null);
-  const [query, setQuery] = useState(""); // Removed placeholder "nissan"
+  const [query, setQuery] = useState("");
   const [history, setHistory] = useState<Node[]>([]);
-  const [forwardHistory, setForwardHistory] = useState<Node[]>([]); // Added forward history state
+  const [forwardHistory, setForwardHistory] = useState<Node[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'; // Default to localhost if not set
 
   const fetchConcept = async (keyword: string) => {
     setLoading(true);
-    setQuery(keyword); // Ensure query is updated immediately
+    setQuery(keyword);
     if (concept) {
       setHistory((prev) => [...prev, concept]);
     }
 
     try {
-      const res = await fetch(`https://toxic-roman-often-acknowledge.trycloudflare.com/concept/${encodeURIComponent(keyword)}`);
+      const res = await fetch(`${backendUrl}/concept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ keyword, language }),
+      });
       const data = await res.json();
       setConcept(data);
     } catch (error) {
@@ -88,7 +97,7 @@ export const FractalViewer: React.FC = () => {
     if (selectedText) {
       fetchConcept(selectedText);
     } else {
-      alert("No text selected");
+      alert(language === 'es' ? "No se seleccionó texto" : "No text selected");
     }
   };
 
@@ -119,24 +128,24 @@ export const FractalViewer: React.FC = () => {
               fetchConcept(query);
             }
           }}
-          placeholder="Enter a concept..."
+          placeholder={language === 'es' ? 'Introduce un concepto...' : 'Enter a concept...'}
           style={{
             padding: 10,
             borderRadius: 5,
             border: '1px solid #ccc',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-            width: 'calc(100% - 40px)', // Match the width of the buttons
+            width: 'calc(100% - 40px)',
             maxWidth: 300,
             boxSizing: 'border-box',
           }}
         />
         <button
           onClick={() => fetchConcept(query)}
-          disabled={loading} // Disable button when loading
+          disabled={loading}
           style={{
             padding: '10px',
             borderRadius: 5,
-            backgroundColor: loading ? '#ccc' : '#98F3B6', // Change color when disabled
+            backgroundColor: loading ? '#ccc' : '#98F3B6',
             color: loading ? '#888' : '#435047',
             border: 'none',
             cursor: loading ? 'not-allowed' : 'pointer',
@@ -145,7 +154,7 @@ export const FractalViewer: React.FC = () => {
             boxSizing: 'border-box',
           }}
         >
-          Search
+          {locales[language].search}
         </button>
         <button
           onClick={querySelectedText}
@@ -161,14 +170,14 @@ export const FractalViewer: React.FC = () => {
             boxSizing: 'border-box',
           }}
         >
-          Query Selected Text
+          {locales[language].querySelectedText}
         </button>
         <button
           onClick={() => window.open(`https://duckduckgo.com/?q=${encodeURIComponent(query)}`, '_blank')}
           style={{
             padding: '10px',
             borderRadius: 5,
-            backgroundColor: '#FFDD57', // Yellow color for distinction
+            backgroundColor: '#FFDD57',
             color: '#000',
             border: 'none',
             cursor: 'pointer',
@@ -177,7 +186,7 @@ export const FractalViewer: React.FC = () => {
             boxSizing: 'border-box',
           }}
         >
-          Search Online
+          {locales[language].searchOnline}
         </button>
         {history.length > 0 && (
           <button
@@ -191,7 +200,7 @@ export const FractalViewer: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            Back
+            {locales[language].back}
           </button>
         )}
         {forwardHistory.length > 0 && (
@@ -206,7 +215,7 @@ export const FractalViewer: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            Forward
+            {locales[language].forward}
           </button>
         )}
       </div>

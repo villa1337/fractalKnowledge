@@ -66,8 +66,8 @@ button:focus-visible {
 }
 
 ::selection {
-  background: #1E90FF; /* Bright blue background */
-  color: #FFFFFF; /* White text */
+  background-color: rgba(30, 144, 255, 0.5); /* Semi-transparent blue */
+  color: #000; /* Black text for better contrast */
 }
 
 @media (prefers-color-scheme: light) {
