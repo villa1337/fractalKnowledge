@@ -11,6 +11,15 @@ import logging
 import re
 from prompts import PROMPTS
 
+# Force requests to use IPv4 (fixes IPv6 issues on some platforms)
+import socket
+import requests.packages.urllib3.util.connection as urllib3_cn
+
+def force_ipv4():
+    urllib3_cn.allowed_gai_family = lambda: socket.AF_INET
+
+force_ipv4()
+
 # Load environment variables from .env file
 load_dotenv()
 
