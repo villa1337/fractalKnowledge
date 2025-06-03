@@ -64,7 +64,7 @@ def query_openrouter(prompt: str, model=DEFAULT_MODEL) -> dict:
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 750
+        "max_tokens": 850
     }
 
     time.sleep(1)  # Delay to reduce risk of rate limiting
