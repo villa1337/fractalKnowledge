@@ -66,7 +66,7 @@ def query_groq(prompt: str, model="llama3-70b-8192") -> dict:
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 850
+        "max_tokens": 2000
     }
 
     time.sleep(1)  # Delay to reduce risk of rate limiting
@@ -78,9 +78,25 @@ def query_groq(prompt: str, model="llama3-70b-8192") -> dict:
             headers=headers
         )
         response.raise_for_status()
-        return response.json()
+        print(f"✅ GROQ raw response: {response.text}")  # Print the raw response for debugging
+        try:
+            # Attempt to parse the JSON response
+            return response.json()
+        except json.JSONDecodeError as json_err:
+            print(f"❌ JSONDecodeError: {json_err}")
+            print(f"⚠️ Raw response text: {response.text}")
+            raise
     except requests.exceptions.HTTPError as http_err:
         print(f"❌ GROQ HTTP error occurred: {http_err}")
+        if response.status_code == 429 and model != "llama3-70b-8192":
+            print("🔁 Retrying with fallback model...")
+            return query_groq(prompt, model="llama3-13b-4096")
+        raise
+    except requests.exceptions.RequestException as req_err:
+        print(f"❌ RequestException occurred: {req_err}")
+        raise
+    except Exception as e:
+        print(f"❌ An unexpected error occurred: {e}")
         raise
 
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
