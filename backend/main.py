@@ -53,6 +53,36 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "google/gemma-3n-e4b-it:free")
 WIKIPEDIA_API_BASE_URL = os.getenv("WIKIPEDIA_API_BASE_URL", "https://en.wikipedia.org/api/rest_v1/page/summary/")
 
+# GROQ integration
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+def query_groq(prompt: str, model="llama3-70b-8192") -> dict:
+    print(f"Querying Groq with key: {GROQ_API_KEY} and model: {model}")
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+        "User-Agent": "fractal-knowledge-explorer/1.0"
+    }
+    body = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 850
+    }
+
+    time.sleep(1)  # Delay to reduce risk of rate limiting
+
+    try:
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            json=body,
+            headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as http_err:
+        print(f"❌ GROQ HTTP error occurred: {http_err}")
+        raise
+
 # Improved function to query OpenRouter LLM with custom User-Agent, fallback, delay, and error handling
 def query_openrouter(prompt: str, model=DEFAULT_MODEL) -> dict:
     print(f"Querying OpenRouter with key: {OPENROUTER_API_KEY} and model: {model}")
@@ -109,7 +139,8 @@ async def get_concept(request: dict):
     prompt = PROMPTS.get(language, PROMPTS["en"]).format(keyword=keyword, context_clause=context_clause)
 
     try:
-        llm_raw = query_openrouter(prompt)
+        # llm_raw = query_openrouter(prompt)
+        llm_raw = query_groq(prompt)
         print("✅ LLM raw response received")
 
         llm_content = llm_raw["choices"][0]["message"]["content"]
