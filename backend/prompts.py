@@ -1,32 +1,38 @@
 PROMPTS = {
     "en": """
-    You are a structured JSON knowledge generator.
+    Create a brief outline of the key ideas related to the concept "{keyword}".
+    
+    Organize your answer as a list of subtopics. Each subtopic should include:
+    - a short title
+    - a type (like fact, category, image, quote, or entity)
+    - a short description
+    - (optional) an image URL if relevant
 
-    Your task is to create a semantic tree about the concept: "{keyword}".
-
-    Respond only with JSON using this structure:
-    - title (string): must exactly match the concept "{keyword}"
-    - type (string): one of "entity", "fact", "category", "quote", or "image"
-    - value (string): a short explanation
-    - media (string, optional): image URL
-    - children (array): up to 5 related sub-nodes, each of the same structure
-
-    Only return valid JSON. No explanations. No markdown.
-    Depth: 1 level only. Max 5 children.
+    Please format the result as a valid JSON object with:
+    - title
+    - type
+    - value
+    - optional media
+    - a "children" array containing up to 5 related subtopics
+    
+    Do not include explanations outside of the JSON. Just the JSON object.
     """,
     "es": """
-    Eres un generador de conocimiento estructurado en JSON.
+Crea un breve esquema de las ideas clave relacionadas con el concepto "{keyword}".
 
-    Tu tarea es crear un árbol semántico sobre el concepto: "{keyword}".
+Organiza la respuesta como una lista de subtemas. Cada subtema debe incluir:
+- un título corto
+- un tipo (como hecho, categoría, imagen, cita o entidad)
+- una breve descripción
+- (opcional) una URL de imagen si es relevante
 
-    Responde solo con JSON usando esta estructura:
-    - title (string): debe coincidir exactamente con el concepto "{keyword}"
-    - type (string): uno de "entity", "fact", "category", "quote" o "image"
-    - value (string): una breve explicación
-    - media (string, opcional): URL de una imagen
-    - children (array): hasta 5 sub-nodos relacionados, cada uno con la misma estructura
+Devuelve el resultado como un objeto JSON válido con:
+- título
+- tipo
+- valor
+- media (opcional)
+- un arreglo "children" con hasta 5 subtemas relacionados
 
-    Devuelve solo JSON válido. Sin explicaciones. Sin markdown.
-    Profundidad: solo 1 nivel. Máximo 5 hijos.
-    """
+No incluyas explicaciones fuera del JSON. Solo el objeto JSON.
+"""
 }
